@@ -1,2 +1,2 @@
 # etct
-ethereum-transactions-crawler-task
+ethereum-transactions-crawler

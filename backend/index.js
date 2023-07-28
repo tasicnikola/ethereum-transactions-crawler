@@ -7,11 +7,7 @@ const port = 3000;
 app.use(cors());
 app.use(express.json());
 
-const web3 = new Web3(
-  new Web3.providers.HttpProvider(
-    config.projectId
-  )
-);
+const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
 
 app.post("/transactions", async (req, res) => {
   const wallet = req.body.wallet.toLowerCase();
@@ -58,7 +54,6 @@ async function fetchTransactions(wallet, block) {
 }
 
 app.listen(port, () => {
-    console.log(`Listening for API Calls`);
-    console.log(port);
-  });
-  
+  console.log(`Listening for API Calls`);
+  console.log(port);
+});
