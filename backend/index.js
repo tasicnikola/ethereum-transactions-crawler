@@ -1,8 +1,9 @@
-const app = express();
 const express = require("express");
 const { Web3 } = require("web3");
+const app = express();
 const cors = require("cors");
 const config = require("./config");
+
 const port = 3000;
 app.use(cors());
 app.use(express.json());
@@ -35,15 +36,15 @@ async function fetchTransactions(wallet, block) {
       if (tx.to === wallet || tx.from === wallet) {
         transactionsData.push({
           hash: tx.hash,
-          nonce: tx.nonce,
+          nonce: parseInt(tx.nonce.toString()),
           blockHash: tx.blockHash,
-          blockNumber: tx.blockNumber,
-          transactionIndex: tx.transactionIndex,
+          blockNumber: parseInt(tx.blockNumber.toString()),
+          transactionIndex: parseInt(tx.transactionIndex.toString()),
           from: tx.from,
           to: tx.to,
           value: web3.utils.fromWei(tx.value, "ether"),
-          gas: tx.gas,
-          gasPrice: tx.gasPrice,
+          gas: parseInt(tx.gas.toString()),
+          gasPrice: parseInt(tx.gasPrice.toString()),
           input: tx.input,
         });
       }
