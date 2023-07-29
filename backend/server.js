@@ -3,30 +3,39 @@ const { Web3 } = require("web3");
 const app = express();
 const cors = require("cors");
 const config = require("./config");
-
+const NodeCache = require("node-cache");
 const port = 3000;
 app.use(cors());
 app.use(express.json());
 
 const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
-const CHUNK_SIZE = 200;
-const REQUEST_DELAY_MS = 100;
+const cache = new NodeCache({ stdTTL: 300, checkperiod: 600 });
+const CHUNK_SIZE = 300;
+const REQUEST_DELAY_MS = 1000;
 
 app.post("/eth-balance", async (req, res) => {
   try {
     const wallet = req.body.wallet.toLowerCase();
     const date = req.body.date;
+    const cacheKey = `eth-balance:${wallet}:${date}`;
+
+    const cachedBalance = cache.get(cacheKey);
+    if (undefined !== cachedBalance) {
+      return res.json({ balance: cachedBalance });
+    }
 
     const timestamp = Math.floor(new Date(date).getTime() / 1000);
     const blockNumber = await findBlockByTimestamp(timestamp);
 
-    if (blockNumber === null) {
+    if (null === blockNumber) {
       return res
         .status(404)
         .json({ error: "No data available for the specific date" });
     }
 
     const balance = await getEthBalance(wallet, blockNumber);
+
+    cache.set(cacheKey, balance);
 
     res.json({ balance });
   } catch (error) {
@@ -84,6 +93,13 @@ app.post("/transactions", async (req, res) => {
     const wallet = req.body.wallet.toLowerCase();
     let block = req.body.block;
 
+    const cacheKey = `transactions:${wallet}:${block}`;
+    const cachedTransactions = cache.get(cacheKey);
+
+    if (undefined !== cachedTransactions) {
+      return res.json(cachedTransactions);
+    }
+
     if (block.startsWith("0x")) {
       block = BigInt(block);
     } else {
@@ -91,6 +107,9 @@ app.post("/transactions", async (req, res) => {
     }
 
     const transactionsData = await fetchTransactions(wallet, block);
+
+    cache.set(cacheKey, transactionsData);
+
     res.json(transactionsData);
   } catch (error) {
     console.error("Error fetching transactions:", error);
