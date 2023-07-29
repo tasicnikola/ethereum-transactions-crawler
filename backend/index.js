@@ -12,6 +12,73 @@ const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
 const CHUNK_SIZE = 200;
 const REQUEST_DELAY_MS = 100;
 
+app.post("/eth-balance", async (req, res) => {
+  try {
+    const wallet = req.body.wallet.toLowerCase();
+    const date = req.body.date;
+
+    const timestamp = Math.floor(new Date(date).getTime() / 1000);
+    const blockNumber = await findBlockByTimestamp(timestamp);
+
+    if (blockNumber === null) {
+      return res
+        .status(404)
+        .json({ error: "No data available for the specific date" });
+    }
+
+    const balance = await getEthBalance(wallet, blockNumber);
+
+    res.json({ balance });
+  } catch (error) {
+    console.error("Error fetching ETH balance:", error);
+    res.status(500).json({ error: "Failed to fetch ETH balance" });
+  }
+});
+
+async function findBlockByTimestamp(timestamp) {
+  const currentBlock = BigInt(await web3.eth.getBlockNumber());
+  let left = 0n;
+  let right = currentBlock;
+
+  while (left <= right) {
+    const mid = (left + right) / 2n;
+    const blockNum = BigInt(mid.toString());
+    const blockData = await fetchBlockData(blockNum);
+
+    if (!blockData) {
+      return null;
+    }
+
+    if (blockData.timestamp < timestamp) {
+      left = blockNum + 1n;
+    } else {
+      right = blockNum - 1n;
+    }
+  }
+
+  return right;
+}
+
+async function fetchBlockData(blockNum) {
+  return new Promise((resolve, reject) => {
+    web3.eth.getBlock(blockNum, true, (error, result) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(result);
+      }
+    });
+  });
+}
+
+async function getEthBalance(wallet, blockNumber) {
+  const balance = await fetchWithDelay(() =>
+    web3.eth.getBalance(wallet, blockNumber)
+  );
+
+  return web3.utils.fromWei(balance, "ether");
+}
+
 app.post("/transactions", async (req, res) => {
   try {
     const wallet = req.body.wallet.toLowerCase();
