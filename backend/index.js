@@ -9,7 +9,7 @@ app.use(cors());
 app.use(express.json());
 
 const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
-const CHUNK_SIZE = 1000;
+const CHUNK_SIZE = 200;
 const REQUEST_DELAY_MS = 100;
 
 app.post("/transactions", async (req, res) => {
