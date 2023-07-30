@@ -1,5 +1,5 @@
 require('dotenv').config();
 
 module.exports = {
-  projectId: process.env.PROVIDER,
+  projectId: process.env.QUICKNODE_PROVIDER,
 };
