@@ -2,16 +2,17 @@ const express = require("express");
 const { Web3 } = require("web3");
 const app = express();
 const cors = require("cors");
-const config = require("./config");
+const config = require("../config/config");
 const NodeCache = require("node-cache");
-const port = 3000;
 app.use(cors());
 app.use(express.json());
 
+const CHUNK_SIZE = config.chunkSize;
+const REQUEST_DELAY_MS = config.requsetDelay;
+const PORT = config.port;
+
 const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
 const cache = new NodeCache({ stdTTL: 300, checkperiod: 600 });
-const CHUNK_SIZE = 300;
-const REQUEST_DELAY_MS = 1000;
 
 app.post("/eth-balance", async (req, res) => {
   try {
@@ -123,6 +124,8 @@ async function fetchTransactions(wallet, block) {
   const totalChunks =
     (currentBlock - block + BigInt(1)) / BigInt(CHUNK_SIZE) + BigInt(1);
 
+  const chunkPromises = [];
+
   for (let chunk = BigInt(0); chunk < totalChunks; chunk++) {
     const fromBlock = block + chunk * BigInt(CHUNK_SIZE);
     const toBlock =
@@ -130,6 +133,7 @@ async function fetchTransactions(wallet, block) {
         ? currentBlock
         : fromBlock + BigInt(CHUNK_SIZE - 1);
 
+    console.log(fromBlock, toBlock);
     const blockRangePromises = [];
     for (let blockNum = fromBlock; blockNum <= toBlock; blockNum++) {
       blockRangePromises.push(
@@ -137,24 +141,31 @@ async function fetchTransactions(wallet, block) {
       );
     }
 
-    const blocks = await Promise.all(blockRangePromises);
-    for (const blockData of blocks) {
-      for (const tx of blockData.transactions) {
-        if (tx.to === wallet || tx.from === wallet) {
-          transactionsData.push({
-            hash: tx.hash,
-            nonce: parseInt(tx.nonce.toString()),
-            blockHash: tx.blockHash,
-            blockNumber: parseInt(tx.blockNumber.toString()),
-            transactionIndex: parseInt(tx.transactionIndex.toString()),
-            from: tx.from,
-            to: tx.to,
-            value: web3.utils.fromWei(tx.value, "ether"),
-            gas: parseInt(tx.gas.toString()),
-            gasPrice: parseInt(tx.gasPrice.toString()),
-            input: tx.input,
-          });
-        }
+    chunkPromises.push(Promise.all(blockRangePromises));
+  }
+
+  const chunksData = await Promise.all(chunkPromises);
+  const blocks = chunksData.flat();
+
+  for (const blockData of blocks) {
+    if (!blockData) {
+      continue;
+    }
+    for (const tx of blockData.transactions) {
+      if (tx.to === wallet || tx.from === wallet) {
+        transactionsData.push({
+          hash: tx.hash,
+          nonce: parseInt(tx.nonce.toString()),
+          blockHash: tx.blockHash,
+          blockNumber: parseInt(tx.blockNumber.toString()),
+          transactionIndex: parseInt(tx.transactionIndex.toString()),
+          from: tx.from,
+          to: tx.to,
+          value: web3.utils.fromWei(tx.value, "ether"),
+          gas: parseInt(tx.gas.toString()),
+          gasPrice: parseInt(tx.gasPrice.toString()),
+          input: tx.input,
+        });
       }
     }
   }
@@ -175,7 +186,7 @@ function fetchWithDelay(apiCall) {
   });
 }
 
-app.listen(port, () => {
+app.listen(PORT, () => {
   console.log(`Listening for API Calls`);
-  console.log(port);
+  console.log(PORT);
 });
