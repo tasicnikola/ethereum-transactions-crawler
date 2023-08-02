@@ -36,3 +36,15 @@
     transform: rotate(360deg);
   }
 }
+
+.MuiStack-root {
+  padding: 8px 8px !important;
+}
+
+.boxed {
+  box-shadow: 0px 8px 16px rgba(0, 0, 0, 0.075);
+  border-radius: 8px;
+  background-color: white;
+  min-width: 650px;
+  padding: 16px;
+}
