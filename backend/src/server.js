@@ -10,9 +10,12 @@ app.use(express.json());
 const CHUNK_SIZE = config.chunkSize;
 const REQUEST_DELAY_MS = config.requsetDelay;
 const PORT = config.port;
+const MAX_REQUESTS_PER_SECOND = config.maxRequestsPerSecond;
 
 const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
 const cache = new NodeCache({ stdTTL: 300, checkperiod: 600 });
+let requestQueue = [];
+let requestInProgress = false;
 
 app.post("/eth-balance", async (req, res) => {
   try {
@@ -133,11 +136,10 @@ async function fetchTransactions(wallet, block) {
         ? currentBlock
         : fromBlock + BigInt(CHUNK_SIZE - 1);
 
-    console.log(fromBlock, toBlock);
     const blockRangePromises = [];
     for (let blockNum = fromBlock; blockNum <= toBlock; blockNum++) {
       blockRangePromises.push(
-        fetchWithDelay(() => web3.eth.getBlock(blockNum, true))
+        throttleRequest(() => web3.eth.getBlock(blockNum, true))
       );
     }
 
@@ -183,6 +185,37 @@ function fetchWithDelay(apiCall) {
         reject(error);
       }
     }, REQUEST_DELAY_MS);
+  });
+}
+
+function throttleRequest(apiCall) {
+  return new Promise((resolve, reject) => {
+    const makeRequest = async () => {
+      if (requestInProgress || requestQueue.length >= MAX_REQUESTS_PER_SECOND) {
+        setTimeout(makeRequest, 1000 / MAX_REQUESTS_PER_SECOND);
+      } else {
+        requestInProgress = true;
+        try {
+          const result = await apiCall();
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        } finally {
+          requestInProgress = false;
+          if (requestQueue.length > 0) {
+            const nextRequest = requestQueue.shift();
+            nextRequest();
+          }
+        }
+      }
+    };
+
+    requestQueue.push(makeRequest);
+
+    if (!requestInProgress) {
+      const nextRequest = requestQueue.shift();
+      nextRequest();
+    }
   });
 }
 
