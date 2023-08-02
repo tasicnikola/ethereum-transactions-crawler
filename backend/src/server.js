@@ -55,6 +55,7 @@ async function findBlockByTimestamp(timestamp) {
 
   while (left <= right) {
     const mid = (left + right) / 2n;
+
     const blockNum = BigInt(mid.toString());
     const blockData = await fetchBlockData(blockNum);
 
@@ -73,15 +74,13 @@ async function findBlockByTimestamp(timestamp) {
 }
 
 async function fetchBlockData(blockNum) {
-  return new Promise((resolve, reject) => {
-    web3.eth.getBlock(blockNum, true, (error, result) => {
-      if (error) {
-        reject(error);
-      } else {
-        resolve(result);
-      }
-    });
-  });
+  try {
+    const blockData = await web3.eth.getBlock(blockNum, true);
+    return blockData;
+  } catch (error) {
+    console.error("Error fetching block data:", error);
+    return null;
+  }
 }
 
 async function getEthBalance(wallet, blockNumber) {
