@@ -1,6 +1,6 @@
 import ETCService from "./etc.service";
-import { Transactions as TransactionsParams } from "../interfaces/Transations/Transations";
-import { Balance as BalanceParams } from "../interfaces/Balance/Balance";
+import { Transactions as TransactionsParams } from "../interfaces/Params/Transations/Transations";
+import { Balance as BalanceParams } from "../interfaces/Params/Balance/Balance";
 
 class TransactionsService {
   public static get(parameters: TransactionsParams): Promise<string> {

@@ -1,4 +1,3 @@
-export type Balance = {
-    wallet: string,
-    date: string
+export interface Balance {
+  balance: string;
 }
