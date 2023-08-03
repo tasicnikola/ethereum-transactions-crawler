@@ -117,13 +117,13 @@ const Transactions = () => {
           <TableHead>
             <TableRow>
               <TableCell>Transaction</TableCell>
-              <TableCell align="left">From</TableCell>
-              <TableCell align="left">To</TableCell>
-              <TableCell align="left">Value</TableCell>
-              <TableCell align="left">Nonce</TableCell>
-              <TableCell align="left">Block</TableCell>
-              <TableCell align="left">Gas</TableCell>
-              <TableCell align="left">Gas Price</TableCell>
+              <TableCell align="center">From</TableCell>
+              <TableCell align="center">To</TableCell>
+              <TableCell align="center">Value</TableCell>
+              <TableCell align="center">Nonce</TableCell>
+              <TableCell align="center">Block</TableCell>
+              <TableCell align="center">Gas</TableCell>
+              <TableCell align="center">Gas Price</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -135,13 +135,13 @@ const Transactions = () => {
                 <TableCell component="th" scope="row">
                   {tx.hash}
                 </TableCell>
-                <TableCell align="right">{tx.from}</TableCell>
-                <TableCell align="right">{tx.to}</TableCell>
-                <TableCell align="right">{tx.value}</TableCell>
-                <TableCell align="right">{tx.nonce}</TableCell>
-                <TableCell align="right">{tx.blockHash}</TableCell>
-                <TableCell align="right">{tx.gas}</TableCell>
-                <TableCell align="right">{tx.gasPrice}</TableCell>
+                <TableCell align="center">{tx.from}</TableCell>
+                <TableCell align="center">{tx.to}</TableCell>
+                <TableCell align="center">{tx.value}</TableCell>
+                <TableCell align="center">{tx.nonce}</TableCell>
+                <TableCell align="center">{tx.blockHash}</TableCell>
+                <TableCell align="center">{tx.gas}</TableCell>
+                <TableCell align="center">{tx.gasPrice}</TableCell>
               </TableRow>
             ))}
           </TableBody>
