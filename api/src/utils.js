@@ -2,7 +2,6 @@ const config = require("../config/config");
 const { Web3 } = require("web3");
 
 const CHUNK_SIZE = config.chunkSize;
-const REQUEST_DELAY_MS = config.requsetDelay;
 const MAX_REQUESTS_PER_SECOND = config.maxRequestsPerSecond;
 
 const web3 = new Web3(new Web3.providers.HttpProvider(config.projectId));
@@ -89,24 +88,11 @@ async function fetchTransactions(wallet, block) {
 }
 
 async function getEthBalance(wallet, blockNumber) {
-  const balance = await fetchWithDelay(() =>
+  const balance = await throttleRequest(() =>
     web3.eth.getBalance(wallet, blockNumber)
   );
 
   return web3.utils.fromWei(balance, "ether");
-}
-
-function fetchWithDelay(apiCall) {
-  return new Promise((resolve, reject) => {
-    setTimeout(async () => {
-      try {
-        const result = await apiCall();
-        resolve(result);
-      } catch (error) {
-        reject(error);
-      }
-    }, REQUEST_DELAY_MS);
-  });
 }
 
 function throttleRequest(apiCall) {
@@ -154,7 +140,6 @@ module.exports = {
   findBlockByTimestamp,
   fetchTransactions,
   getEthBalance,
-  fetchWithDelay,
   throttleRequest,
   fetchBlockData,
 };
