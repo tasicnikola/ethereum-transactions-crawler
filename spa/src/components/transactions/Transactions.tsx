@@ -9,8 +9,6 @@ import { LocalizationProvider } from "@mui/x-date-pickers/LocalizationProvider";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import { DemoContainer } from "@mui/x-date-pickers/internals/demo";
 import TransactionsService from "../../services/transactions.service";
-import { Transaction as TransactionModel } from "../../interfaces/Transation/Transaction";
-import { Balance as BalanceModel } from "../../interfaces/Balance/Balance";
 import Table from "@mui/material/Table";
 import TableBody from "@mui/material/TableBody";
 import TableCell from "@mui/material/TableCell";
@@ -129,7 +127,7 @@ const Transactions = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {transactions.map((tx: any) => (
+            {transactions?.map((tx: any) => (
               <TableRow
                 key={tx.name}
                 sx={{ "&:last-child td, &:last-child th": { border: 0 } }}
