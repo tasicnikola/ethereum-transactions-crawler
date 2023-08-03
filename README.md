@@ -3,7 +3,6 @@
 ## Requirements
 Before running the application, ensure you have the following installed:
 - Docker engine
-- docker-compose
 
 ## Instructions
 To run the application, follow these steps:
