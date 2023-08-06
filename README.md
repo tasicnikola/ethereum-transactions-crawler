@@ -7,7 +7,7 @@ Before running the application, ensure you have the following installed:
 ## Instructions
 To run the application, follow these steps:
 1. Clone this repository to your local machine.
-2. Navigate to the `etct` folder in the cloned repository.
+2. Navigate to the cloned repository.
 3. Run the following command in the terminal:
 `docker-compose up`
 4. Once the containers are up and running, you can access the application in your web browser at `localhost:3000`.
