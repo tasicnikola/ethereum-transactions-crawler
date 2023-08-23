@@ -4,6 +4,10 @@
 Before running the application, ensure you have the following installed:
 - Docker engine
 
+## Example: 
+If a user requests to view transactions associated with the address 0xaa7a9ca87d3694b5755f213b5d04094b8d0f0a6f from block 9000000 to the current block, application should crawl and visualize all transaction data (addresses that have sent and received tokens from the address 0xaa7a9ca87d3694b5755f213b5d04094b8d0f0a6f, and how much ETH was used for a given transaction) in that period of time.
+Given a date in YYYY-MM-DD format, the program should return the exact value of ETH that was available on the given address at YYYY-MM-DD 00:00 UTC time.
+
 ## Instructions
 To run the application, follow these steps:
 1. Clone this repository to your local machine.
